@@ -1,12 +1,14 @@
-import { View, Text, FlatList } from "react-native";
+import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { deleteGrocery, readAllGroceries } from "db/db";
 import CardItem from "components/cardItem";
 import { Grocery } from "types/Grocery";
+import ModalAddItem from "components/ModalAddItem";
 
 const index = () => {
   const [groceries, setGroceries] = useState<Grocery[]>([]);
+  const [openAdd, setOpenAdd] = useState(false);
   const db = useSQLiteContext();
 
   const handleFetch = async () => {
@@ -25,8 +27,17 @@ const index = () => {
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
+      {/* Nút thêm */}
+      <TouchableOpacity
+        onPress={() => setOpenAdd(true)}
+        style={{ alignSelf: "flex-end", marginBottom: 10 }}
+      >
+        <Text style={{ fontSize: 28 }}>＋</Text>
+      </TouchableOpacity>
+
+      {/* Empty state */}
       {groceries.length === 0 ? (
-        <Text style={{ fontSize: 16, textAlign: "center", marginTop: 20 }}>
+        <Text style={{ textAlign: "center", marginTop: 20 }}>
           Danh sách trống, thêm món cần mua nhé!
         </Text>
       ) : (
@@ -38,6 +49,13 @@ const index = () => {
           )}
         />
       )}
+
+      {/* Modal thêm mới */}
+      <ModalAddItem
+        visible={openAdd}
+        onClose={() => setOpenAdd(false)}
+        onAdded={handleFetch}
+      />
     </View>
   );
 };

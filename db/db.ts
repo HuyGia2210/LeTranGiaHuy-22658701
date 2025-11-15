@@ -80,6 +80,16 @@ export const updateGrocery = async (db: SQLiteDatabase, data: Grocery) => {
   );
 };
 
+export const boughtGrocery = async (db: SQLiteDatabase, id: number) => {
+  await db.runAsync(
+    `
+        UPDATE grocery_items SET bought = 1 WHERE id = ?
+        `,
+
+    [id]
+  );
+};
+
 export const deleteGrocery = async (db: SQLiteDatabase, id: number) => {
   await db.runAsync(
     `

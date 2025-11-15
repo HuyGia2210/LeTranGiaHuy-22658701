@@ -19,6 +19,7 @@ const CardItem = ({ data, onDelete }: Props) => {
         <Card.Content>
           <Text>Quantity: {data.quantity}</Text>
           <Text>Category: {data.category}</Text>
+          <Text>Bought: {data.bought === 1 ? "Yes" : "No"}</Text>
           <Text></Text>
         </Card.Content>
         <Card.Actions>
