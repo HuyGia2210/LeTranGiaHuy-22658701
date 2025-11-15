@@ -17,8 +17,9 @@ const CardItem = ({ data, onDelete }: Props) => {
       <Card>
         <Card.Title title={data.name}></Card.Title>
         <Card.Content>
-          <Text>Amount: {data.quantity}</Text>
-          <Text>Type: {data.category}</Text>
+          <Text>Quantity: {data.quantity}</Text>
+          <Text>Category: {data.category}</Text>
+          <Text></Text>
         </Card.Content>
         <Card.Actions>
           <Button mode="contained">Update</Button>
