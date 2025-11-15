@@ -1,0 +1,39 @@
+import { View, Text } from "react-native";
+import React from "react";
+import { Button, Card } from "react-native-paper";
+import { useRouter } from "expo-router";
+import { Grocery } from "types/Grocery";
+
+type Props = {
+  data: Grocery;
+  onDelete: (id: number) => void;
+};
+
+const CardItem = ({ data, onDelete }: Props) => {
+  const router = useRouter();
+
+  const handelUpdate = async (id: number) => {
+    router.push({ pathname: "/form", params: { id: id } });
+  };
+  return (
+    <View>
+      <Card>
+        <Card.Title title={data.name}></Card.Title>
+        <Card.Content>
+          <Text>Amount: {data.quantity}</Text>
+          <Text>Type: {data.category}</Text>
+        </Card.Content>
+        <Card.Actions>
+          <Button mode="contained" onPress={() => handelUpdate(data.id)}>
+            Update
+          </Button>
+          <Button mode="contained" onPress={() => onDelete(data.id)}>
+            Delete
+          </Button>
+        </Card.Actions>
+      </Card>
+    </View>
+  );
+};
+
+export default CardItem;

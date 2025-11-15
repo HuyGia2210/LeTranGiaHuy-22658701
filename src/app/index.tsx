@@ -1,12 +1,23 @@
-import { Link } from "expo-router";
-import React from "react";
-import { Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { View, Text, FlatList } from "react-native";
+import React, { useState } from "react";
+import { useSQLiteContext } from "expo-sqlite";
+import { deleteGrocery, readAllGroceries } from "db/db";
+import CardItem from "components/cardItem";
+import { Grocery } from "types/Grocery";
 
-export default function Page() {
-  return (
-    <View className="flex flex-1">
-      
-    </View>
-  );
-}
+const index = () => {
+  const [groceries, setGroceries] = useState<Grocery[]>([]);
+  const db = useSQLiteContext();
+
+  const handleFetch = async () => {
+    await readAllGroceries(db).then((list) => setGroceries(list));
+  };
+
+  const handleDelete = async (id: number) => {
+    await deleteGrocery(db, id).then(() => handleFetch());
+  };
+
+  return <View></View>;
+};
+
+export default index;
