@@ -9,6 +9,7 @@ import ModalAddItem from "components/ModalAddItem";
 const index = () => {
   const [groceries, setGroceries] = useState<Grocery[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
+  const [editingItem, setEditingItem] = useState<Grocery | null>(null);
   const db = useSQLiteContext();
 
   const handleFetch = async () => {
@@ -27,6 +28,11 @@ const index = () => {
     setGroceries((prev) =>
       prev.map((g) => (g.id === id ? { ...g, bought: g.bought ? 0 : 1 } : g))
     );
+  };
+
+  const handleEdit = (item: Grocery) => {
+    setEditingItem(item);
+    setOpenAdd(true);
   };
 
   useEffect(() => {
@@ -57,6 +63,7 @@ const index = () => {
               data={item}
               onDelete={handleDelete}
               onToggle={handleToggle}
+              onEdit={handleEdit}
             />
           )}
         />
@@ -67,6 +74,7 @@ const index = () => {
         visible={openAdd}
         onClose={() => setOpenAdd(false)}
         onAdded={handleFetch}
+        editingItem={editingItem}
       />
     </View>
   );

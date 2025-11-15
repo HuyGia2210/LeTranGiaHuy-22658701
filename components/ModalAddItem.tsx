@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -8,15 +8,27 @@ import {
   Alert,
 } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
-import { createGrocery } from "db/db";
+import { createGrocery, updateGrocery } from "db/db";
 import { Grocery } from "types/Grocery";
 
-export default function ModalAddItem({ visible, onClose, onAdded }: any) {
+export default function ModalAddItem({
+  visible,
+  onClose,
+  onAdded,
+  editingItem,
+}: any) {
   const db = useSQLiteContext();
 
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [category, setCategory] = useState("");
+
+  useEffect(() => {
+    // Khi modal mở với item edit, set giá trị hiện tại
+    setName(editingItem?.name || "");
+    setQuantity(editingItem?.quantity?.toString() || "1");
+    setCategory(editingItem?.category || "");
+  }, [editingItem, visible]);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -24,18 +36,28 @@ export default function ModalAddItem({ visible, onClose, onAdded }: any) {
       return;
     }
 
-    await createGrocery(db, {
-      name: name.trim(),
-      quantity: parseInt(quantity) || 1,
-      category,
-    } as Grocery);
+    if (editingItem) {
+      // UPDATE
+      await updateGrocery(db, {
+        id: editingItem.id,
+        name: name.trim(),
+        quantity: parseInt(quantity) || 1,
+        category,
+        bought: editingItem.bought,
+        created_at: editingItem.created_at,
+      } as Grocery);
+    } else {
+      // CREATE
+      await createGrocery(db, {
+        name: name.trim(),
+        quantity: parseInt(quantity) || 1,
+        category,
+        bought: 0,
+        created_at: Date.now(),
+      } as Grocery);
+    }
 
-    // reset
-    setName("");
-    setQuantity("1");
-    setCategory("");
-
-    onAdded && onAdded(); // callback reload list
+    onAdded && onAdded();
     onClose();
   };
 
@@ -57,7 +79,9 @@ export default function ModalAddItem({ visible, onClose, onAdded }: any) {
             gap: 12,
           }}
         >
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>Thêm món</Text>
+          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+            {editingItem ? "Chỉnh sửa món" : "Thêm món"}
+          </Text>
 
           <TextInput
             placeholder="Tên món"
