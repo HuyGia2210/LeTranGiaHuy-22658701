@@ -1,16 +1,31 @@
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  Button,
+  Alert,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { deleteGrocery, readAllGroceries, toggleBoughtGrocery } from "db/db";
 import CardItem from "components/cardItem";
 import { Grocery } from "types/Grocery";
 import ModalAddItem from "components/ModalAddItem";
+import { TextInput } from "react-native-paper";
 
 const index = () => {
   const [groceries, setGroceries] = useState<Grocery[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [editingItem, setEditingItem] = useState<Grocery | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [apiLink, setApiLink] = useState("");
   const db = useSQLiteContext();
+
+  const syncWithAPI = async () => {
+    setModalVisible(true);
+  };
 
   const handleFetch = async () => {
     const list = await readAllGroceries(db);
@@ -35,6 +50,30 @@ const index = () => {
     setOpenAdd(true);
   };
 
+  const handleSync = async () => {
+    setModalVisible(false);
+    if (!apiLink) return;
+
+    try {
+      const localItems = await readAllGroceries(db);
+
+      // Xóa toàn bộ data trên API
+      await fetch(apiLink, { method: "DELETE" });
+
+      for (const item of localItems) {
+        await fetch(apiLink, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(item),
+        });
+      }
+
+      Alert.alert("Đồng bộ thành công!");
+    } catch (err) {
+      Alert.alert("Lỗi đồng bộ", String(err));
+    }
+  };
+
   useEffect(() => {
     handleFetch();
   }, []);
@@ -47,6 +86,13 @@ const index = () => {
         style={{ alignSelf: "flex-end", marginBottom: 10 }}
       >
         <Text style={{ fontSize: 28 }}>＋</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => syncWithAPI()}
+        style={{ alignSelf: "flex-end", marginBottom: 10 }}
+      >
+        <Text style={{ fontSize: 28 }}>SYNC</Text>
       </TouchableOpacity>
 
       {/* Empty state */}
@@ -76,6 +122,36 @@ const index = () => {
         onAdded={handleFetch}
         editingItem={editingItem}
       />
+
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#000000aa",
+          }}
+        >
+          <View
+            style={{
+              width: "80%",
+              backgroundColor: "#fff",
+              padding: 20,
+              borderRadius: 8,
+            }}
+          >
+            <Text>Nhập link API</Text>
+            <TextInput
+              value={apiLink}
+              onChangeText={setApiLink}
+              placeholder="https://mockapi.io/..."
+              style={{ borderWidth: 1, padding: 8, marginVertical: 12 }}
+            />
+            <Button title="Đồng bộ" onPress={handleSync} />
+            <Button title="Hủy" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
