@@ -7,7 +7,7 @@ import {
   Button,
   Alert,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { deleteGrocery, readAllGroceries, toggleBoughtGrocery } from "db/db";
 import CardItem from "components/cardItem";
@@ -21,6 +21,8 @@ const index = () => {
   const [editingItem, setEditingItem] = useState<Grocery | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [apiLink, setApiLink] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
   const db = useSQLiteContext();
 
   const syncWithAPI = async () => {
@@ -49,6 +51,12 @@ const index = () => {
     setEditingItem(item);
     setOpenAdd(true);
   };
+
+  const filteredGroceries = useMemo(() => {
+    if (!searchQuery.trim()) return groceries;
+    const lowerQuery = searchQuery.toLowerCase();
+    return groceries.filter((g) => g.name.toLowerCase().includes(lowerQuery));
+  }, [groceries, searchQuery]);
 
   const handleSync = async () => {
     setModalVisible(false);
@@ -95,6 +103,20 @@ const index = () => {
         <Text style={{ fontSize: 28 }}>SYNC</Text>
       </TouchableOpacity>
 
+      <TextInput
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Tìm kiếm món..."
+        style={{
+          borderWidth: 1,
+          borderColor: "#ccc",
+          borderRadius: 8,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          marginBottom: 12,
+        }}
+      />
+
       {/* Empty state */}
       {groceries.length === 0 ? (
         <Text style={{ textAlign: "center", marginTop: 20 }}>
@@ -102,7 +124,7 @@ const index = () => {
         </Text>
       ) : (
         <FlatList
-          data={groceries}
+          data={filteredGroceries}
           keyExtractor={(i) => i.id.toString()}
           renderItem={({ item }) => (
             <CardItem
