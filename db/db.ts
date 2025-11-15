@@ -80,12 +80,13 @@ export const updateGrocery = async (db: SQLiteDatabase, data: Grocery) => {
   );
 };
 
-export const boughtGrocery = async (db: SQLiteDatabase, id: number) => {
+export const toggleBoughtGrocery = async (db: SQLiteDatabase, id: number) => {
   await db.runAsync(
     `
-        UPDATE grocery_items SET bought = 1 WHERE id = ?
-        `,
-
+      UPDATE grocery_items
+      SET bought = CASE WHEN bought = 0 THEN 1 ELSE 0 END
+      WHERE id = ?
+    `,
     [id]
   );
 };

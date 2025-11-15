@@ -1,7 +1,7 @@
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
-import { deleteGrocery, readAllGroceries } from "db/db";
+import { deleteGrocery, readAllGroceries, toggleBoughtGrocery } from "db/db";
 import CardItem from "components/cardItem";
 import { Grocery } from "types/Grocery";
 import ModalAddItem from "components/ModalAddItem";
@@ -19,6 +19,14 @@ const index = () => {
   const handleDelete = async (id: number) => {
     await deleteGrocery(db, id);
     await handleFetch();
+  };
+
+  const handleToggle = async (id: number) => {
+    await toggleBoughtGrocery(db, id);
+    // Update state local ngay lập tức
+    setGroceries((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, bought: g.bought ? 0 : 1 } : g))
+    );
   };
 
   useEffect(() => {
@@ -45,7 +53,11 @@ const index = () => {
           data={groceries}
           keyExtractor={(i) => i.id.toString()}
           renderItem={({ item }) => (
-            <CardItem data={item} onDelete={handleDelete} />
+            <CardItem
+              data={item}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
+            />
           )}
         />
       )}
