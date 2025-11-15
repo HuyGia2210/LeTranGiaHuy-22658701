@@ -12,6 +12,7 @@ export default function Layout() {
       <SafeAreaProvider>
         <SafeAreaView className="flex flex-1">
           <Text className="text-xl">Grocery List</Text>
+          <Slot />
         </SafeAreaView>
       </SafeAreaProvider>
     </SQLiteProvider>

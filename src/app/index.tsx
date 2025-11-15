@@ -1,5 +1,5 @@
 import { View, Text, FlatList } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { deleteGrocery, readAllGroceries } from "db/db";
 import CardItem from "components/cardItem";
@@ -10,14 +10,30 @@ const index = () => {
   const db = useSQLiteContext();
 
   const handleFetch = async () => {
-    await readAllGroceries(db).then((list) => setGroceries(list));
+    const list = await readAllGroceries(db);
+    setGroceries(list);
   };
 
   const handleDelete = async (id: number) => {
-    await deleteGrocery(db, id).then(() => handleFetch());
+    await deleteGrocery(db, id);
+    await handleFetch();
   };
 
-  return <View></View>;
+  useEffect(() => {
+    handleFetch();
+  }, []);
+
+  return (
+    <View>
+      <FlatList
+        data={groceries}
+        keyExtractor={(i) => i.id.toString()}
+        renderItem={({ item }) => (
+          <CardItem data={item} onDelete={handleDelete} />
+        )}
+      />
+    </View>
+  );
 };
 
 export default index;

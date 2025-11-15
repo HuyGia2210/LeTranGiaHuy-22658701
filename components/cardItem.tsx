@@ -12,9 +12,6 @@ type Props = {
 const CardItem = ({ data, onDelete }: Props) => {
   const router = useRouter();
 
-  const handelUpdate = async (id: number) => {
-    router.push({ pathname: "/form", params: { id: id } });
-  };
   return (
     <View>
       <Card>
@@ -24,9 +21,7 @@ const CardItem = ({ data, onDelete }: Props) => {
           <Text>Type: {data.category}</Text>
         </Card.Content>
         <Card.Actions>
-          <Button mode="contained" onPress={() => handelUpdate(data.id)}>
-            Update
-          </Button>
+          <Button mode="contained">Update</Button>
           <Button mode="contained" onPress={() => onDelete(data.id)}>
             Delete
           </Button>

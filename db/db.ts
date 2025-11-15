@@ -3,15 +3,42 @@ import { Grocery } from "types/Grocery";
 
 export const createTable = async (db: SQLiteDatabase) => {
   await db.execAsync(`
-        CREATE TABLE IF NOT EXISTS grocery_items(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            quantity INTEGER DEFAULT 1,
-            category TEXT,
-            bought INTEGER DEFAULT 0,
-            created_at INTEGER
-        )
-        `);
+    CREATE TABLE IF NOT EXISTS grocery_items(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      quantity INTEGER DEFAULT 1,
+      category TEXT,
+      bought INTEGER DEFAULT 0,
+      created_at INTEGER
+    );
+  `);
+
+  // KIỂM TRA BẢNG TRỐNG
+  const row = await db.getFirstAsync<{ cnt: number }>(
+    `SELECT COUNT(*) AS cnt FROM grocery_items`
+  );
+
+  if (row?.cnt === 0) {
+    const now = Date.now();
+
+    await db.runAsync(
+      `INSERT INTO grocery_items (name, quantity, category, bought, created_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      ["Sữa", 1, "Đồ uống", 0, now]
+    );
+
+    await db.runAsync(
+      `INSERT INTO grocery_items (name, quantity, category, bought, created_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      ["Trứng", 12, "Thực phẩm", 0, now]
+    );
+
+    await db.runAsync(
+      `INSERT INTO grocery_items (name, quantity, category, bought, created_at)
+       VALUES (?, ?, ?, ?, ?)`,
+      ["Bánh mì", 1, "Bakery", 0, now]
+    );
+  }
 };
 
 //CRUD
