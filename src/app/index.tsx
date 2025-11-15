@@ -24,14 +24,20 @@ const index = () => {
   }, []);
 
   return (
-    <View>
-      <FlatList
-        data={groceries}
-        keyExtractor={(i) => i.id.toString()}
-        renderItem={({ item }) => (
-          <CardItem data={item} onDelete={handleDelete} />
-        )}
-      />
+    <View style={{ flex: 1, padding: 16 }}>
+      {groceries.length === 0 ? (
+        <Text style={{ fontSize: 16, textAlign: "center", marginTop: 20 }}>
+          Danh sách trống, thêm món cần mua nhé!
+        </Text>
+      ) : (
+        <FlatList
+          data={groceries}
+          keyExtractor={(i) => i.id.toString()}
+          renderItem={({ item }) => (
+            <CardItem data={item} onDelete={handleDelete} />
+          )}
+        />
+      )}
     </View>
   );
 };
