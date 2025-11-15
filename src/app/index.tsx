@@ -96,6 +96,7 @@ const index = () => {
         <Text style={{ fontSize: 28 }}>＋</Text>
       </TouchableOpacity>
 
+{/* SYNC */}
       <TouchableOpacity
         onPress={() => syncWithAPI()}
         style={{ alignSelf: "flex-end", marginBottom: 10 }}
